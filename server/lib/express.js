@@ -18,6 +18,7 @@ import { has, get } from 'lodash';
 
 import logger from './logger';
 import forest from './forest';
+import { middleware as hyperwatchMiddleware } from './hyperwatch';
 import cacheMiddleware from '../middleware/cache';
 import { loadersMiddleware } from '../graphql/loaders';
 import { sanitizeForLogs } from './utils';
@@ -39,6 +40,9 @@ export default function(app) {
   // Body parser.
   app.use(bodyParser.json({ limit: '50mb' }));
   app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+
+  // Register Hyperwatch middleware
+  app.use(hyperwatchMiddleware);
 
   // Slow requests if enabled (default false)
   if (get(config, 'log.slowRequest')) {

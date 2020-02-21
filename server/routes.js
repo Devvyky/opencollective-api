@@ -2,7 +2,7 @@ import serverStatus from 'express-server-status';
 import GraphHTTP from 'express-graphql';
 import multer from 'multer';
 import config from 'config';
-
+import expressWs from 'express-ws';
 import redis from 'redis';
 import expressLimiter from 'express-limiter';
 import { ApolloServer } from 'apollo-server-express';
@@ -26,6 +26,7 @@ import sanitizer from './middleware/sanitizer';
 import * as paypal from './paymentProviders/paypal/payment';
 
 import logger from './lib/logger';
+import hyperwatch from './lib/hyperwatch';
 
 import graphqlSchemaV1 from './graphql/v1/schema';
 import graphqlSchemaV2 from './graphql/v2/schema';
@@ -205,6 +206,14 @@ export default app => {
    * Hello Works API - Helloworks hits this endpoint when a document has been completed.
    */
   app.post('/helloworks/callback', helloworks.callback);
+
+  // We need to setup express-ws here to make Hyperwatch's websocket works
+  expressWs(app);
+
+  // Mount Hyperwatch API and Websocket
+  const hyperwatchPath = '/_hyperwatch';
+  app.use(hyperwatchPath, hyperwatch.apps.api);
+  app.use(hyperwatchPath, hyperwatch.apps.websocket);
 
   /**
    * Override default 404 handler to make sure to obfuscate api_key visible in URL
