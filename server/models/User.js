@@ -3,7 +3,7 @@ import config from 'config';
 import Promise from 'bluebird';
 import slugify from 'limax';
 import debugLib from 'debug';
-import { defaults, intersection, pick } from 'lodash';
+import { defaults, intersection, pick, get } from 'lodash';
 import { Op } from 'sequelize';
 import { isEmailBurner } from 'burner-email-providers';
 
@@ -419,6 +419,20 @@ export default (Sequelize, DataTypes) => {
   };
 
   /**
+   * Limit the user account, preventing most actions on the platoform
+   * @param spamReport: an optional spam report to attach to the account limitation. See `server/lib/spam.ts`.
+   */
+  User.prototype.limitAcount = async function(spamReport = null) {
+    const newData = { ...this.data, features: { ...get(this.data, 'features'), ALL: false } };
+    if (spamReport) {
+      newData.spamReports = [...get(this.data, 'spamReports', []), spamReport];
+    }
+
+    logger.info(`Limiting user account for ${this.id}`);
+    return this.update({ data: newData });
+  };
+
+  /**
    * Class Methods
    */
   User.createMany = (users, defaultValues = {}) => {
@@ -446,6 +460,7 @@ export default (Sequelize, DataTypes) => {
 
     const sequelizeParams = transaction ? { transaction } : undefined;
     debug('createUserWithCollective', userData);
+    // TODO: 'firstName', 'lastName' are deprecated in the User table
     const cleanUserData = pick(userData, ['email', 'firstName', 'lastName', 'newsletterOptIn']);
     const user = await User.create(cleanUserData, sequelizeParams);
     let name = userData.firstName;

@@ -1,5 +1,5 @@
 import moment from 'moment';
-import uuidv4 from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 import debugLib from 'debug';
 import Promise from 'bluebird';
 import { omit, get, isNil } from 'lodash';
@@ -154,34 +154,13 @@ export async function createOrder(order, loaders, remoteUser, reqIp) {
 
     // Pledge to a GitHub organization or project
     if (githubHandle) {
-      if (githubHandle.includes('/')) {
-        // A repository GitHub Handle (most common)
-        const repo = await github.getRepo(githubHandle).catch(() => null);
-        if (!repo) {
-          throw new errors.ValidationFailed({
-            message: 'We could not verify the GitHub repository',
-          });
-        }
-        if (repo.stargazers_count < config.githubFlow.minNbStars) {
-          throw new errors.ValidationFailed({
-            message: `The repository need at least ${config.githubFlow.minNbStars} GitHub stars to be pledged.`,
-          });
-        }
-      } else {
-        // An organization GitHub Handle
-        const org = await github.getOrg(githubHandle).catch(() => null);
-        if (!org) {
-          throw new errors.ValidationFailed({
-            message: 'We could not verify the GitHub organization',
-          });
-        }
-        const allRepos = await github.getAllOrganizationPublicRepos(githubHandle).catch(() => null);
-        const repoWith100stars = allRepos.find(repo => repo.stargazers_count >= config.githubFlow.minNbStars);
-        if (!repoWith100stars) {
-          throw new errors.ValidationFailed({
-            message: `The organization need at least one repository with ${config.githubFlow.minNbStars} GitHub stars to be pledged.`,
-          });
-        }
+      try {
+        // Check Exists
+        await github.checkGithubExists(githubHandle);
+        // Check Stars
+        await github.checkGithubStars(githubHandle);
+      } catch (error) {
+        throw new errors.ValidationFailed({ message: error.message });
       }
     }
 
@@ -885,7 +864,7 @@ export async function addFundsToOrg(args, remoteUser) {
     expiryDate: moment()
       .add(1, 'year')
       .format(),
-    uuid: uuidv4(),
+    uuid: uuid(),
     data: { HostCollectiveId: args.HostCollectiveId },
     service: 'opencollective',
     type: 'prepaid',

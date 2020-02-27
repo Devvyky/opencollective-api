@@ -31,6 +31,8 @@ import models, { Op } from '../../../models';
 import { ConversationCollection } from '../collection/ConversationCollection';
 import { TagStats } from '../object/TagStats';
 import { TransferWise } from '../object/TransferWise';
+import PayoutMethod from '../object/PayoutMethod';
+import { Location } from '../object/Location';
 
 const accountFieldsDefinition = () => ({
   // _internal_id: {
@@ -54,6 +56,9 @@ const accountFieldsDefinition = () => ({
   },
   description: {
     type: GraphQLString,
+  },
+  tags: {
+    type: new GraphQLList(GraphQLString),
   },
   website: {
     type: GraphQLString,
@@ -167,6 +172,14 @@ const accountFieldsDefinition = () => ({
     resolve(collective) {
       return collective;
     },
+  },
+  payoutMethods: {
+    type: new GraphQLList(PayoutMethod),
+    description: 'The list of payout methods that this collective can use to get paid',
+  },
+  location: {
+    type: Location,
+    description: 'The address associated to this account. This field is always public for collectives and events.',
   },
 });
 
@@ -328,6 +341,17 @@ export const AccountFields = {
     },
     async resolve(collective, _, { limit }) {
       return models.Conversation.getMostPopularTagsForCollective(collective.id, limit);
+    },
+  },
+  payoutMethods: {
+    type: new GraphQLList(PayoutMethod),
+    description: 'The list of payout methods that this collective can use to get paid',
+    async resolve(collective, _, req) {
+      if (!req.remoteUser || !req.remoteUser.isAdmin(collective.id)) {
+        return null;
+      } else {
+        return req.loaders.PayoutMethod.byCollectiveId.load(collective.id);
+      }
     },
   },
 };
