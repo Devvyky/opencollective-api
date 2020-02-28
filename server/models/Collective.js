@@ -1862,6 +1862,10 @@ export default function(Sequelize, DataTypes) {
       .then(() => {
         return Promise.map(tiers, tier => {
           if (tier.id) {
+            if (tier.amountType === 'FIXED') {
+              tier.presets = null;
+              tier.minimumAmount = null;
+            }
             return models.Tier.update(tier, { where: { id: tier.id, CollectiveId: this.id } });
           } else {
             tier.CollectiveId = this.id;
