@@ -1,6 +1,6 @@
 {
   "name": "opencollective-api",
-  "version": "2.0.562",
+  "version": "2.0.563",
   "description": "Open Collective API",
   "author": "@philmod @arnaudbenard @xdamman @asood123",
   "main": "server/index.js",
@@ -9,11 +9,11 @@
     "npm": "6.12.0"
   },
   "dependencies": {
-    "@babel/core": "7.8.4",
+    "@babel/core": "7.8.6",
     "@babel/node": "7.8.4",
     "@babel/plugin-proposal-class-properties": "7.8.3",
     "@babel/plugin-transform-async-to-generator": "7.8.3",
-    "@babel/preset-env": "7.8.4",
+    "@babel/preset-env": "7.8.6",
     "@babel/preset-typescript": "^7.8.3",
     "@octokit/auth-app": "2.4.3",
     "@octokit/rest": "16.43.1",
@@ -22,7 +22,7 @@
     "apollo-errors": "1.9.0",
     "apollo-server-express": "2.10.1",
     "argparse": "1.0.10",
-    "aws-sdk": "2.627.0",
+    "aws-sdk": "2.628.0",
     "axios": "0.19.2",
     "babel-plugin-add-module-exports": "1.0.2",
     "babel-plugin-lodash": "3.3.4",
@@ -95,7 +95,7 @@
     "sequelize-cli": "5.5.1",
     "sequelize-temporal": "1.0.8",
     "showdown": "1.9.1",
-    "stripe": "8.22.0",
+    "stripe": "8.23.0",
     "tweetnacl": "1.0.3",
     "tweetnacl-util": "0.15.1",
     "twitter": "1.7.1",
@@ -105,7 +105,7 @@
   },
   "devDependencies": {
     "@babel/cli": "7.8.4",
-    "@babel/register": "7.8.3",
+    "@babel/register": "7.8.6",
     "@typescript-eslint/eslint-plugin": "^2.21.0",
     "@typescript-eslint/parser": "^2.21.0",
     "babel-eslint": "^10.1.0",
